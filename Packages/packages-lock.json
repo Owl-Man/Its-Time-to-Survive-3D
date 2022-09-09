@@ -1,11 +1,5 @@
 {
   "dependencies": {
-    "com.jbooth.microsplat.core": {
-      "version": "file:com.jbooth.microsplat.core",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
-    },
     "com.unity.burst": {
       "version": "1.6.5",
       "depth": 1,
@@ -25,7 +19,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.collab-proxy": {
-      "version": "1.15.17",
+      "version": "1.17.2",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -163,7 +157,7 @@
       }
     },
     "com.unity.test-framework": {
-      "version": "1.1.31",
+      "version": "1.1.33",
       "depth": 0,
       "source": "registry",
       "dependencies": {
