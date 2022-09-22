@@ -4,84 +4,127 @@
     {
 
         [Header(Surface Options)]
-        [Space(5)]
+        [Space(8)]
 
         [Enum(UnityEngine.Rendering.CullMode)]
         _Cull                           ("Culling", Float) = 0
+        [ToggleOff(_RECEIVE_SHADOWS_OFF)]
+        _ReceiveShadows                 ("Receive Shadows", Float) = 1.0
+        [ToggleOff(_SPECULARHIGHLIGHTS_OFF)]
+        _SpecularHighlights             ("Enable Specular Highlights", Float) = 1.0
+        [Enum(Off,0,On,1)] _Coverage    ("Alpha To Coverage*", Float) = 0
+        [Space(4)]
+        [CTIURPHelpDrawer]
+        _HelpA ("* Will most likely break if any Depth Prepass is active.", Float) = 0.0
 
+        [Space(8)]
+        [Toggle(_NORMALINDEPTHNORMALPASS)]
+        _ApplyNormalDepthNormal         ("Enable Normal in Depth Normal Pass", Float) = 1.0
+        [Toggle(_RECEIVEDECALS)]
+        _ReceiveDecals                  ("Receive Decals", Float) = 0.0
+
+        [Space(8)]
+        [KeywordEnum(Standard, Simple, VsNormals, Transmission)]
+        _GbufferLighting ("Gbuffer Lighting", Float) = 1
+        [Toggle(_SAMPLE_LIGHT_COOKIES)]
+        _ApplyCookiesForTransmission    ("     Enable Cookies for Transmission", Float) = 0.0
         
         [Header(Surface Inputs)]
-        [Space(5)]
+        [Space(8)]
         _HueVariation                   ("Color Variation", Color) = (0.9,0.5,0.0,0.1)
-        [Space(5)]
+        [Space(8)]
         [NoScaleOffset]
+        [MainTexture]
         _BaseMap                        ("Albedo (RGB) Alpha (A)", 2D) = "white" {}
         _Cutoff                         ("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
-        [Space(5)]
+        [Space(8)]
         [Toggle(_NORMALMAP)]
         _ApplyNormal                    ("Enable Normal (AG) Smoothness (B) Trans (R) Map", Float) = 1.0
         [NoScaleOffset]
-        _BumpSpecMap                    ("    Normal (AG) Smoothness (B) Trans (R)", 2D) = "white" {}
+        _BumpSpecMap                    ("     Normal (AG) Smoothness (B) Trans (R)", 2D) = "white" {}
         _Smoothness                     ("Smoothness", Range(0.0, 1.0)) = 0.5
+        _BackfaceSmoothness             ("     Backface Smoothness", Range(0.0, 1.0)) = 1
         _SpecColor                      ("Specular", Color) = (0.2, 0.2, 0.2)
-        
+
+
+        [Header(Wrapped Diffuse Lighting)]
+        [Space(8)]
+        _Wrap                           ("Wrap*", Range(0.0, 1.0)) = 0.5
+        [Space(4)]
+        [CTIURPHelpDrawer]
+        _HelpA ("* Only used in forward rendering.", Float) = 0.0
 
         [Header(Transmission)]
-        [Space(5)]
+        [Space(8)]
         [CTI_URPTransDrawer]
-        _Translucency                   ("Strength (X) Power (Y) Distortion (Z)", Vector) = (1, 8, 0.01, 0)
+        _Translucency                   ("Strength (X) Power (Y) Shadow Strength (Z) Distortion (W)", Vector) = (1, 4, 1.0, 0.01)
         
         
-        [Header(Wind Multipliers)]
-        [Space(5)]
+        [Header(Wind)]
+        [Space(8)]
         [CTI_URPWindDrawer]
         _BaseWindMultipliers            ("Main (X) Branch (Y) Flutter (Z)", Vector) = (1,1,1,0)
+        [Space(8)]
+        _WindVariation                  ("Wind Variation", Range(0.0, 0.05)) = 0.0
 
         [Header(Advanced Wind)]
-        [Space(5)]
+        [Space(8)]
         [Toggle(_LEAFTUMBLING)]
         _EnableLeafTumbling             ("Enable Leaf Tumbling", Float) = 1.0
-        _TumbleStrength                 ("    Tumble Strength", Range(-1,1)) = 0
-        _TumbleFrequency                ("    Tumble Frequency", Range(0,4)) = 1
+        _TumbleStrength                 ("     Tumble Strength", Range(-1,1)) = 0
+        _TumbleFrequency                ("     Tumble Frequency", Range(0,4)) = 1
 
         [Toggle(_LEAFTURBULENCE)]
         _EnableLeafTurbulence           ("Enable Leaf Turbulence", Float) = 0.0
-        _LeafTurbulence                 ("    Leaf Turbulence", Range(0,4)) = 0.2
-        _EdgeFlutterInfluence           ("    Edge Flutter Influence", Range(0,1)) = 0.25
+        _LeafTurbulence                 ("     Leaf Turbulence", Range(0,4)) = 0.2
+        _EdgeFlutterInfluence           ("     Edge Flutter Influence", Range(0,1)) = 0.25
 
-        [Space(5)]
+        [Space(8)]
         [Toggle(_NORMALROTATION)]
         _EnableNormalRotation           ("Enable Normal Rotation", Float) = 0.0
 
         
         [Header(Ambient)]
-        [Space(5)]
+        [Space(8)]
         _AmbientReflection              ("Ambient Reflection", Range(0, 1)) = 1
 
         
         [Header(Shadows)]
-        [Space(5)]
+        [Space(8)]
         [Enum(UnityEngine.Rendering.CullMode)]
         _ShadowCulling                  ("Shadow Caster Culling", Float) = 0
         //_ShadowOffsetBias             ("ShadowOffsetBias", Float) = 1
 
         
-        // Needed by VegetationStudio's Billboard Rendertex Shaders
+    //  Needed by VegetationStudio's Billboard Rendertex Shaders
         [HideInInspector] _IsBark("Is Bark", Float) = 0
+
+    //  ObsoleteProperties
+        [HideInInspector] _MainTex("BaseMap", 2D) = "white" {}
+        // Do NOT define this as otherwise baked shadows will fail
+        // [HideInInspector] _Color("Base Color", Color) = (1, 1, 1, 1)
+        [HideInInspector] _GlossMapScale("Smoothness", Float) = 0.0
+        [HideInInspector] _Glossiness("Smoothness", Float) = 0.0
+        [HideInInspector] _GlossyReflections("EnvironmentReflections", Float) = 0.0
+
+        [HideInInspector][NoScaleOffset]unity_Lightmaps("unity_Lightmaps", 2DArray) = "" {}
+        [HideInInspector][NoScaleOffset]unity_LightmapsInd("unity_LightmapsInd", 2DArray) = "" {}
+        [HideInInspector][NoScaleOffset]unity_ShadowMasks("unity_ShadowMasks", 2DArray) = "" {}
         
     }
 
     SubShader
     {
-
         Tags
         {
+            "Queue" = "AlphaTest" // Light Mapper!
             "RenderPipeline" = "UniversalPipeline"
-            "RenderType" = "Opaque"
-            "Queue"="AlphaTest"
+            "UniversalMaterialType" = "Lit"
             "DisableBatching" = "LODFading"
             "IgnoreProjector" = "True"
+            "ShaderModel"="4.5"
         }
+        LOD 300
 
 
 //  Base -----------------------------------------------------
@@ -91,196 +134,69 @@
             Tags{"LightMode" = "UniversalForward"}
 
             ZWrite On
-//AlphaToMask On
             Cull [_Cull]
-//ZTest Equal
+            AlphaToMask [_Coverage]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-            #pragma target 2.0
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
 
             // -------------------------------------
             // Material Keywords
             #define _ALPHATEST_ON 1
             #define _SPECULAR_SETUP
 
-            #define CTILEAVES
-            #pragma shader_feature_local _LEAFTUMBLING
-            #pragma shader_feature_local _LEAFTURBULENCE
-            #pragma shader_feature _NORMALMAP
+            #pragma shader_feature_local_vertex _LEAFTUMBLING
+            #pragma shader_feature_local_vertex _LEAFTURBULENCE
+            #pragma shader_feature_local _NORMALMAP
 
-            #pragma shader_feature_local _NORMALROTATION
+            #pragma shader_feature_local_fragment _RECEIVEDECALS
+
+            #pragma shader_feature_local_vertex _NORMALROTATION
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+            #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
 
             // -------------------------------------
-            // Lightweight Pipeline keywords
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile _ _SHADOWS_SOFT
-            #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+//#pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _CLUSTERED_RENDERING
 
             // -------------------------------------
             // Unity defined keywords
-            //#pragma multi_compile _ DIRLIGHTMAP_COMBINED
-            //#pragma multi_compile _ LIGHTMAP_ON
+//#pragma multi_compile _ DIRLIGHTMAP_COMBINED
+//#pragma multi_compile _ LIGHTMAP_ON
+//#pragma multi_compile _ DYNAMICLIGHTMAP_ON
             #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
             
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options assumeuniformscaling maxcount:50
+            #pragma instancing_options renderinglayer
 
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma multi_compile_vertex LOD_FADE_PERCENTAGE
 
-            // As Unity 2019.1 will always enable LOD_FADE_CROSSFADE and LOD_FADE_PERCENTAGE
-            #if UNITY_VERSION < 201920
-                #undef LOD_FADE_CROSSFADE
-            #endif
+            #define CTILEAVES
+
+            #pragma vertex LitPassVertex
+            #pragma fragment LitPassFragment
 
             #include "Includes/CTI URP Inputs.hlsl"
-            #include "Includes/CTI URP Bending.hlsl"
             #include "Includes/CTI URP Lighting.hlsl"
-
-			#pragma vertex LitPassVertex
-			#pragma fragment LitPassFragment
-
-
-/// --------
-            void InitializeInputData(CTIVertexOutput input, half3 normalTS, out InputData inputData)
-            {
-                inputData = (InputData)0;
-                #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
-                    inputData.positionWS = input.positionWS;
-                #endif
-                #ifdef _NORMALMAP
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
-                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
-                #else
-                    half3 viewDirWS = input.viewDirWS;
-                    inputData.normalWS = input.normalWS;
-                #endif
-
-                inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-                viewDirWS = SafeNormalize(viewDirWS);
-                inputData.viewDirectionWS = viewDirWS;
-
-                #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-                    inputData.shadowCoord = input.shadowCoord;
-                #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-                    inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
-                #else
-                    inputData.shadowCoord = float4(0, 0, 0, 0);
-                #endif
-
-                inputData.fogCoord = input.fogFactorAndVertexLight.x;
-                inputData.vertexLighting = input.fogFactorAndVertexLight.yzw;
-                inputData.bakedGI = SAMPLE_GI(input.texcoord1, input.vertexSH, inputData.normalWS);
-            }
-
-			CTIVertexOutput LitPassVertex(CTIVertexInput input)
-			{
-				CTIVertexOutput output = (CTIVertexOutput)0;
-
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-
-
-                CTI_AnimateVertex(
-                    input,
-                    #if defined (_BENDINGCOLRSONLY)
-                        float4(input.color.rg, input.color.ab), // animParams,
-                    #else
-                        float4(input.color.rg, input.texcoord1.xy), // animParams,
-                    #endif
-                    _BaseWindMultipliers
-                );
-
-            //  CTI special
-                output.occlusionVariation = input.color.ar;
-
-                VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
-                VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
-                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
-                half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
-                half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
-
-                output.uv.xy = input.texcoord;
-
-                #ifdef _NORMALMAP
-                    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
-                #else
-                    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-                    output.viewDirWS = viewDirWS;
-                #endif
-
-                //OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
-                OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
-                output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
-
-                #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
-                    output.positionWS = vertexInput.positionWS;
-                #endif
-
-                #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-                    output.shadowCoord = GetShadowCoord(vertexInput);
-                #endif
-
-                output.positionCS = vertexInput.positionCS;
-
-				return output;
-			}
-
-
-            half4 LitPassFragment(CTIVertexOutput IN, half facing : VFACE) : SV_Target
-			{
-                UNITY_SETUP_INSTANCE_ID(IN);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
-
-                #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
-                    LODDitheringTransition(IN.positionCS.xyz, unity_LODFade.x);
-                #endif
-
-                SurfaceDescriptionLeaves surfaceData;
-            //  Get the surface description / defined in "Includes/CTI LWRP Inputs.hlsl"
-                InitializeLeavesLitSurfaceData(IN.occlusionVariation.y, IN.uv.xy, surfaceData);
-
-            //  Add ambient occlusion from vertex input
-                surfaceData.occlusion = IN.occlusionVariation.x;
-
-
-                #if defined(_NORMALMAP)
-                    surfaceData.normalTS.z *= facing;
-                #else
-                    IN.normalWS *= facing;
-                #endif 
-
-                InputData inputData;
-                InitializeInputData(IN, surfaceData.normalTS, inputData);
-
-            //  Apply lighting
-                half4 color = CTILightweightFragmentPBR(
-                    inputData, 
-                    surfaceData.albedo, 
-                    surfaceData.metallic, 
-                    surfaceData.specular, 
-                    surfaceData.smoothness, 
-                    surfaceData.occlusion, 
-                    surfaceData.emission, 
-                    surfaceData.alpha,
-                    _Translucency * half3(surfaceData.translucency, 1, 1),
-                    _AmbientReflection);
-
-            //  Add fog
-                color.rgb = MixFog(color.rgb, inputData.fogCoord);
-                return color;
-			}
+            #include "Includes/CTI URP Leaves ForwardLit Pass.hlsl"
 
             ENDHLSL
         }
@@ -293,90 +209,117 @@
 
             ZWrite On
             ZTest LEqual
-            AlphaToMask On
             Cull [_ShadowCulling]
+            ColorMask 0
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-            #pragma target 2.0
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
 
             // -------------------------------------
             // Material Keywords
             #define _ALPHATEST_ON 1
-            #define CTILEAVES
-            #pragma shader_feature_local _LEAFTUMBLING
-            #pragma shader_feature_local _LEAFTURBULENCE
+            #pragma shader_feature_local_vertex _LEAFTUMBLING
+            #pragma shader_feature_local_vertex _LEAFTURBULENCE
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
             #pragma instancing_options assumeuniformscaling maxcount:50
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+            // This is used during shadow map generation to differentiate between directional and punctual light shadows, as they use different formulas to apply Normal Bias
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
             
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma multi_compile_vertex LOD_FADE_PERCENTAGE
 
-            // As Unity 2019.1 will always enable LOD_FADE_CROSSFADE and LOD_FADE_PERCENTAGE
-            #if UNITY_VERSION < 201920
-                #undef LOD_FADE_CROSSFADE
-            #endif
+            #define CTILEAVES
+            #define SHADOWSONLYPASS
 
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
 
             #include "Includes/CTI URP Inputs.hlsl"
-            #include "Includes/CTI URP Bending.hlsl"
+            #include "Includes/CTI URP Leaves ShadowCaster Pass.hlsl"
 
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+            ENDHLSL
+        }
 
-            float3 _LightDirection;
+//  GBuffer -----------------------------------------------------
+        Pass
+        {
+            Name "GBuffer"
+            Tags{"LightMode" = "UniversalGBuffer"}
 
-            CTIVertexOutput ShadowPassVertex(CTIVertexInput input)
-            {
-                CTIVertexOutput output;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-                
-                CTI_AnimateVertex(
-                    input,
-                    #if defined (_BENDINGCOLRSONLY)
-                        float4(input.color.rg, input.color.ab), // animParams,
-                    #else
-                        float4(input.color.rg, input.texcoord1.xy), // animParams,
-                    #endif
-                    _BaseWindMultipliers
-                ); 
+            ZWrite On
+            ZTest LEqual
+            Cull[_Cull]
 
-                output.uv = input.texcoord;
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
 
-                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                float3 normalWS = TransformObjectToWorldDir(input.normalOS);
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON 1
 
-                output.positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, _LightDirection));
+            #pragma shader_feature_local_vertex _LEAFTUMBLING
+            #pragma shader_feature_local_vertex _LEAFTURBULENCE
+            #pragma shader_feature_local _NORMALMAP
 
-                #if UNITY_REVERSED_Z
-                    output.positionCS.z = min(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
-                #else
-                    output.positionCS.z = max(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
-                #endif
+            #pragma shader_feature_local_vertex _NORMALROTATION
 
-                return output;
-            }
+            #pragma shader_feature_local_fragment _RECEIVEDECALS
 
-            half4 ShadowPassFragment(CTIVertexOutput IN) : SV_TARGET {
-                UNITY_SETUP_INSTANCE_ID(IN);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
+            #pragma shader_feature_local_fragment _ _GBUFFERLIGHTING_SIMPLE _GBUFFERLIGHTING_VSNORMALS _GBUFFERLIGHTING_TRANSMISSION
+        //  Needed in case Transmission is used
+        //  Built in keyword might fail once cookies were activated...
+            #pragma shader_feature_local_fragment _SAMPLE_LIGHT_COOKIES
 
-                #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
-                   LODDitheringTransition(IN.positionCS.xyz, unity_LODFade.x);
-                #endif
-                half alpha = SampleAlbedoAlpha(IN.uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a;
+            #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+            #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
+            #define _SPECULAR_SETUP
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
 
-                clip(alpha - _Cutoff);
-                return 1;
-            }
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile _ _SHADOWS_SOFT
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _RENDER_PASS_ENABLED
+
+            // -------------------------------------
+            // Unity defined keywords
+//#pragma multi_compile _ DIRLIGHTMAP_COMBINED
+//#pragma multi_compile _ LIGHTMAP_ON
+//#pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options assumeuniformscaling maxcount:50
+            #pragma instancing_options renderinglayer
+            //#pragma multi_compile _ DOTS_INSTANCING_ON
+
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+            #pragma multi_compile_vertex LOD_FADE_PERCENTAGE
+
+            #define CTILEAVES
+
+            #pragma vertex LitGBufferPassVertex
+            #pragma fragment LitGBufferPassFragment
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Includes/CTI URP Leaves GBuffer Pass.hlsl"
+
             ENDHLSL
         }
 
@@ -388,14 +331,11 @@
 
             ZWrite On
             ColorMask 0
-            AlphaToMask On
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-            #pragma target 2.0
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
 
             #pragma vertex DepthOnlyVertex
             #pragma fragment DepthOnlyFragment
@@ -403,9 +343,11 @@
             // -------------------------------------
             // Material Keywords
             #define _ALPHATEST_ON 1
-            #define CTILEAVES
-            #pragma shader_feature_local _LEAFTUMBLING
-            #pragma shader_feature_local _LEAFTURBULENCE
+            #pragma shader_feature_local_vertex _LEAFTUMBLING
+            #pragma shader_feature_local_vertex _LEAFTURBULENCE
+
+        //  Needed because of deferred which may otherwise get some z fighting issues
+            #pragma shader_feature_local_vertex _NORMALROTATION
 
             //--------------------------------------
             // GPU Instancing
@@ -415,83 +357,45 @@
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma multi_compile_vertex LOD_FADE_PERCENTAGE
 
-            // As Unity 2019.1 will always enable LOD_FADE_CROSSFADE and LOD_FADE_PERCENTAGE
-            #if UNITY_VERSION < 201920
-                #undef LOD_FADE_CROSSFADE
-            #endif
-
+            #define CTILEAVES
             #define DEPTHONLYPASS
 
             #include "Includes/CTI URP Inputs.hlsl"
-            #include "Includes/CTI URP Bending.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
-            CTIVertexOutput DepthOnlyVertex(CTIVertexInput input)
-            {
-                CTIVertexOutput output = (CTIVertexOutput)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-
-                CTI_AnimateVertex(
-                    input,
-                    #if defined (_BENDINGCOLRSONLY)
-                        float4(input.color.rg, input.color.ab), // animParams,
-                    #else
-                        float4(input.color.rg, input.texcoord1.xy), // animParams,
-                    #endif
-                    _BaseWindMultipliers
-                ); 
-
-                VertexPositionInputs vertexPosition = GetVertexPositionInputs(input.positionOS);
-                output.uv.xy = input.texcoord;
-                output.positionCS = vertexPosition.positionCS;
-                return output;
-            }
-
-            half4 DepthOnlyFragment(CTIVertexOutput IN) : SV_TARGET
-            {
-                UNITY_SETUP_INSTANCE_ID(IN);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
-
-                #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES) // enable dithering LOD transition if user select CrossFade transition in LOD group
-                    LODDitheringTransition(IN.positionCS.xyz, unity_LODFade.x);
-                #endif
-                half alpha = SampleAlbedoAlpha(IN.uv.xy, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a;
-
-                clip(alpha - _Cutoff);
-                return 1;
-            }
+            #include "Includes/CTI URP Leaves DepthOnly Pass.hlsl"
 
             ENDHLSL
         }
 
-//  Selection = Depth -----------------------------------------------------
+
+//  Depth Normal -----------------------------------------------------
         Pass
         {
-            Name "SceneSelectionPass"
-            Tags{"LightMode" = "SceneSelectionPass"}
-        
+            Name "DepthNormals"
+            Tags{"LightMode" = "DepthNormals"}
+
             ZWrite On
-            ColorMask 0
-            AlphaToMask On
             Cull [_Cull]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-            #pragma target 2.0
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
 
-            #pragma vertex DepthOnlyVertex
-            #pragma fragment DepthOnlyFragment
+            #pragma vertex DepthNormalsVertex
+            #pragma fragment DepthNormalsFragment
 
             // -------------------------------------
             // Material Keywords
             #define _ALPHATEST_ON 1
-            #define CTILEAVES
-            #pragma shader_feature_local _LEAFTUMBLING
-            #pragma shader_feature_local _LEAFTURBULENCE
+            #pragma shader_feature_local_vertex _LEAFTUMBLING
+            #pragma shader_feature_local_vertex _LEAFTURBULENCE
+
+        //  Crazy: This was missing first and the GBuffer pass never rendered correct
+        //  as some frags were occluded by the DepthNormal pass (Decals on)
+        //  Some strange refactoring by the shader compiler?
+            #pragma shader_feature_local_vertex _NORMALROTATION
+
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
 
             //--------------------------------------
             // GPU Instancing
@@ -501,57 +405,60 @@
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma multi_compile_vertex LOD_FADE_PERCENTAGE
 
-            // As Unity 2019.1 will always enable LOD_FADE_CROSSFADE and LOD_FADE_PERCENTAGE
-            #if UNITY_VERSION < 201920
-                #undef LOD_FADE_CROSSFADE
-            #endif
-
-            #define DEPTHONLYPASS
+            #define CTILEAVES
+            #define DEPTHNORMALPASS
 
             #include "Includes/CTI URP Inputs.hlsl"
-            #include "Includes/CTI URP Bending.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
-            CTIVertexOutput DepthOnlyVertex(CTIVertexInput input)
-            {
-                CTIVertexOutput output = (CTIVertexOutput)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-
-                CTI_AnimateVertex(
-                    input,
-                    #if defined (_BENDINGCOLRSONLY)
-                        float4(input.color.rg, input.color.ab), // animParams,
-                    #else
-                        float4(input.color.rg, input.texcoord1.xy), // animParams,
-                    #endif
-                    _BaseWindMultipliers
-                ); 
-
-                VertexPositionInputs vertexPosition = GetVertexPositionInputs(input.positionOS);
-                output.uv.xy = input.texcoord;
-                output.positionCS = vertexPosition.positionCS;
-
-                return output;
-            }
-
-            half4 DepthOnlyFragment(CTIVertexOutput IN) : SV_TARGET
-            {
-                UNITY_SETUP_INSTANCE_ID(IN);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
-
-                #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES) // enable dithering LOD transition if user select CrossFade transition in LOD group
-                    LODDitheringTransition(IN.positionCS.xyz, unity_LODFade.x);
-                #endif
-                half alpha = SampleAlbedoAlpha(IN.uv.xy, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a;
-
-                clip(alpha - _Cutoff);
-                return 1;
-            }
+            #include "Includes/CTI URP Leaves DepthNormal Pass.hlsl"
 
             ENDHLSL
         }
+
+//  Broken in URP 12 (currently)
+
+// --> https://github.com/Unity-Technologies/Graphics/blob/master/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/SelectionPickingPass.hlsl
+
+
+//  Selection -----------------------------------------------------
+        Pass
+        {
+            Name "SceneSelectionPassXX"
+            Tags{"LightMode" = "SceneSelectionPassXX"}
+
+            ZWrite On
+            ColorMask 0
+            Cull [_Cull]
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            #pragma vertex DepthOnlyVertex
+            #pragma fragment DepthOnlyFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON 1
+            #pragma shader_feature_local_vertex _LEAFTUMBLING
+            #pragma shader_feature_local_vertex _LEAFTURBULENCE
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options assumeuniformscaling maxcount:50
+            
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+            #pragma multi_compile_vertex LOD_FADE_PERCENTAGE
+
+            #define CTILEAVES
+            #define DEPTHONLYPASS
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Includes/CTI URP Leaves DepthOnly Pass.hlsl"
+
+            ENDHLSL
+        }
+
 
 //  Meta -----------------------------------------------------
         Pass
@@ -561,17 +468,306 @@
             Cull Off
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
 
             #pragma vertex UniversalVertexMeta
-            #pragma fragment UniversalFragmentMeta
+            #pragma fragment UniversalFragmentMetaLit
 
             #define _SPECULAR_SETUP
+            #define _ALPHATEST_ON 1
 
             #pragma shader_feature _SPECGLOSSMAP
 
             #include "Includes/CTI URP Inputs.hlsl"
+            #include "Includes/CTI URP Meta.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitMetaPass.hlsl"
+
+            ENDHLSL
+        }
+    }
+
+
+//  -----------------------------------------------------------------------------------------
+
+    SubShader
+    {
+        Tags
+        {
+            "Queue" = "AlphaTest"
+            "RenderPipeline" = "UniversalPipeline"
+            "UniversalMaterialType" = "Lit"
+            "DisableBatching" = "LODFading"
+            "IgnoreProjector" = "True"
+            "ShaderModel"="2.0"
+        }
+        LOD 300
+
+
+//  Base -----------------------------------------------------
+        Pass
+        {
+            Name "ForwardLit"
+            Tags{"LightMode" = "UniversalForward"}
+
+            ZWrite On
+            Cull [_Cull]
+            AlphaToMask [_Coverage]
+
+            HLSLPROGRAM
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 2.0
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON 1
+            #define _SPECULAR_SETUP
+
+            #pragma shader_feature_local_vertex _LEAFTUMBLING
+            #pragma shader_feature_local_vertex _LEAFTURBULENCE
+            #pragma shader_feature_local _NORMALMAP
+
+            #pragma shader_feature_local_fragment _RECEIVEDECALS
+
+            #pragma shader_feature_local_vertex _NORMALROTATION
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+            #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+//#pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _CLUSTERED_RENDERING
+
+            // -------------------------------------
+            // Unity defined keywords
+//#pragma multi_compile _ DIRLIGHTMAP_COMBINED
+//#pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
+            
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options assumeuniformscaling maxcount:50
+            #pragma instancing_options renderinglayer
+
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+            #pragma multi_compile_vertex LOD_FADE_PERCENTAGE
+
+            #define CTILEAVES
+
+            #pragma vertex LitPassVertex
+            #pragma fragment LitPassFragment
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Includes/CTI URP Lighting.hlsl"
+            #include "Includes/CTI URP Leaves ForwardLit Pass.hlsl"
+
+            ENDHLSL
+        }
+
+//  Shadows -----------------------------------------------------
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags{"LightMode" = "ShadowCaster"}
+
+            ZWrite On
+            ZTest LEqual
+            Cull [_ShadowCulling]
+            ColorMask 0
+
+            HLSLPROGRAM
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 2.0
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON 1
+            #pragma shader_feature_local_vertex _LEAFTUMBLING
+            #pragma shader_feature_local_vertex _LEAFTURBULENCE
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options assumeuniformscaling maxcount:50
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+            
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+            #pragma multi_compile_vertex LOD_FADE_PERCENTAGE
+
+            #define CTILEAVES
+            #define SHADOWSONLYPASS
+
+            #pragma vertex ShadowPassVertex
+            #pragma fragment ShadowPassFragment
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Includes/CTI URP Leaves ShadowCaster Pass.hlsl"
+
+            ENDHLSL
+        }
+
+//  Depth -----------------------------------------------------
+        Pass
+        {
+            Name "DepthOnly"
+            Tags {"LightMode" = "DepthOnly"}
+
+            ZWrite On
+            ColorMask 0
+            Cull [_Cull]
+
+            HLSLPROGRAM
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 2.0
+
+            #pragma vertex DepthOnlyVertex
+            #pragma fragment DepthOnlyFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON 1
+            #pragma shader_feature_local_vertex _LEAFTUMBLING
+            #pragma shader_feature_local_vertex _LEAFTURBULENCE
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options assumeuniformscaling maxcount:50
+            
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+            #pragma multi_compile_vertex LOD_FADE_PERCENTAGE
+
+            #define CTILEAVES
+            #define DEPTHONLYPASS
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Includes/CTI URP Leaves DepthOnly Pass.hlsl"
+
+            ENDHLSL
+        }
+
+
+//  Depth Normal -----------------------------------------------------
+        Pass
+        {
+            Name "DepthNormals"
+            Tags{"LightMode" = "DepthNormals"}
+
+            ZWrite On
+            Cull [_Cull]
+
+            HLSLPROGRAM
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 2.0
+
+            #pragma vertex DepthNormalsVertex
+            #pragma fragment DepthNormalsFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON 1
+            #pragma shader_feature_local_vertex _LEAFTUMBLING
+            #pragma shader_feature_local_vertex _LEAFTURBULENCE
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options assumeuniformscaling maxcount:50
+            
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+            #pragma multi_compile_vertex LOD_FADE_PERCENTAGE
+
+            #define CTILEAVES
+            #define DEPTHNORMALPASS
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Includes/CTI URP Leaves DepthNormal Pass.hlsl"
+
+
+            ENDHLSL
+        }
+
+//  Broken in URP 12 (currently)
+//  Selection -----------------------------------------------------
+        Pass
+        {
+            Name "SceneSelectionPassXX"
+            Tags{"LightMode" = "SceneSelectionPassXX"}
+
+            ZWrite On
+            ColorMask 0
+            Cull [_Cull]
+
+            HLSLPROGRAM
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 2.0
+
+            #pragma vertex DepthOnlyVertex
+            #pragma fragment DepthOnlyFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON 1
+            #pragma shader_feature_local_vertex _LEAFTUMBLING
+            #pragma shader_feature_local_vertex _LEAFTURBULENCE
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options assumeuniformscaling maxcount:50
+            
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+            #pragma multi_compile_vertex LOD_FADE_PERCENTAGE
+
+            #define CTILEAVES
+            #define DEPTHONLYPASS
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Includes/CTI URP Leaves DepthOnly Pass.hlsl"
+
+            ENDHLSL
+        }
+
+
+//  Meta -----------------------------------------------------
+        Pass
+        {
+            Tags {"LightMode" = "Meta"}
+
+            Cull Off
+
+            HLSLPROGRAM
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 2.0
+
+            #pragma vertex UniversalVertexMeta
+            #pragma fragment UniversalFragmentMetaLit
+
+            #define _SPECULAR_SETUP
+            #define _ALPHATEST_ON 1
+
+            #pragma shader_feature _SPECGLOSSMAP
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Includes/CTI URP Meta.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitMetaPass.hlsl"
 
             ENDHLSL

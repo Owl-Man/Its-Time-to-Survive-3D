@@ -2,9 +2,25 @@
 {
     Properties
     {
-        
+        [Header(Surface Options)]
+        [Space(8)]
+        [ToggleOff(_RECEIVE_SHADOWS_OFF)]
+        _ReceiveShadows                 ("Receive Shadows", Float) = 1.0
+        [ToggleOff(_SPECULARHIGHLIGHTS_OFF)]
+        _SpecularHighlights             ("Enable Specular Highlights", Float) = 1.0
+        [Enum(Off,0,On,1)] _Coverage    ("Alpha To Coverage", Float) = 0
+
+        [Toggle(_NORMALINDEPTHNORMALPASS)]
+        _ApplyNormalDepthNormal         ("Enable Normal in Depth Normal Pass", Float) = 1.0
+
+        [Space(8)]
+        [KeywordEnum(Standard, Transmission)]
+        _GbufferLighting                ("Gbuffer Lighting", Float) = 0
+        [Toggle(_SAMPLE_LIGHT_COOKIES)]
+        _ApplyCookiesForTransmission    ("     Enable Cookies for Transmission", Float) = 0.0
+
         [Header(Surface Inputs)]
-        [Space(5)]
+        [Space(8)]
         _HueVariation                   ("Color Variation", Color) = (0.9,0.5,0.0,0.1)
 
         [NoScaleOffset] _BaseMap        ("Albedo (RGB) Smoothness (A)", 2D) = "white" {}
@@ -15,28 +31,32 @@
         _SpecColor                      ("Specular", Color) = (0.2, 0.2, 0.2)
         _OcclusionStrength              ("Occlusion Strength", Range(0,1)) = 1
 
-        [Space(5)]
+        [Space(8)]
         [Toggle(_NORMALMAP)]
         _ApplyNormal                    ("Enable Normal Map", Float) = 1.0
         [NoScaleOffset]
-        _BumpSpecMap                    ("    Normal (AG) Translucency(R) Smoothness(B)", 2D) = "white" {}
-        _BumpScale                      ("    Normal Scale", Float) = 1.0
+        _BumpSpecMap                    ("     Normal (AG) Translucency(R) Smoothness(B)", 2D) = "white" {}
+        _BumpScale                      ("     Normal Scale", Float) = 1.0
+
+        [Header(Wrapped Diffuse Lighting)]
+        [Space(8)]
+        _Wrap                           ("Wrap", Range(0.0, 1.0)) = 0.5
 
         [Header(Transmission)]
-        [Space(5)]
-        [CTI_LWRPTransDrawer]
+        [Space(8)]
+        [CTI_URPTransDrawer]
         _Translucency                   ("Strength (X) Power (Y)", Vector) = (1, 8, 0, 0)
 
         [Header(Wind)]
-        [Space(3)]
+        [Space(8)]
         _WindStrength                   ("Wind Strength", Float) = 1.0 
         
         [Header(Ambient)]
-        [Space(5)]
+        [Space(8)]
         _AmbientReflection              ("Ambient Reflection", Range(0, 1)) = 1
 
         [Header(Legacy)]
-        [Space(5)]
+        [Space(8)]
         _BillboardScale                 ("Billboard Scale", Float) = 2
 
     }
@@ -45,181 +65,81 @@
     {
         Tags
         {
-            "RenderPipeline" = "LightweightPipeline"
+            "Queue"="Geometry"
             "RenderType" = "Opaque"
-            "Queue"="AlphaTest"
+            "RenderPipeline" = "UniversalPipeline"
+            "UniversalMaterialType" = "Lit"
+            "DisableBatching" = "LODFading"
             "IgnoreProjector" = "True"
+            "ShaderModel"="4.5"
         }
+        LOD 300
 
 
 //  Base -----------------------------------------------------
         Pass
         {
             Name "ForwardLit"
-            Tags {"LightMode" = "LightweightForward"}
+            Tags{"LightMode" = "UniversalForward"}
 
             ZWrite On
-        //  LWRP billboardNormal Orientation is flipped?
+        //  URP billboardNormal orientation is flipped?
             Cull Off
-
-//AlphaToMask On
-
+            AlphaToMask [_Coverage]
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard SRP library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-            #pragma target 2.0
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
 
             // -------------------------------------
             // Material Keywords
             #define _ALPHATEST_ON 1
             #pragma shader_feature _NORMALMAP
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+            #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
 
             #define CTIBILLBOARD
             #define _SPECULAR_SETUP
 
             // -------------------------------------
-            // Lightweight Pipeline keywords
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile _ _SHADOWS_SOFT
-            #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+//#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+//#pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _CLUSTERED_RENDERING
+
 
             // -------------------------------------
             // Unity defined keywords
-            //#pragma multi_compile _ DIRLIGHTMAP_COMBINED
-            //#pragma multi_compile _ LIGHTMAP_ON
+//#pragma multi_compile _ DIRLIGHTMAP_COMBINED
+//#pragma multi_compile _ LIGHTMAP_ON
+//#pragma multi_compile _ DYNAMICLIGHTMAP_ON
             #pragma multi_compile_fog
-            #pragma multi_compile _ LOD_FADE_CROSSFADE
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
 
             #include "Includes/CTI URP Inputs.hlsl"
-            #include "Includes/CTI URP Billboard.hlsl"
             #include "Includes/CTI URP Lighting.hlsl"
 
-			#pragma vertex LitPassVertex
-			#pragma fragment LitPassFragment
+            #pragma vertex LitPassVertex
+            #pragma fragment LitPassFragment
 
-/// --------
-            void InitializeInputData(CTIVertexBBOutput input, half3 normalTS, out InputData inputData)
-            {
-                inputData = (InputData)0;
-                #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
-                    inputData.positionWS = input.positionWS;
-                #endif
-                #ifdef _NORMALMAP
-                    half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.bitangentWS.w);
-                    inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz));
-                #else
-                    half3 viewDirWS = input.viewDirWS;
-                    inputData.normalWS = input.normalWS;
-                #endif
-
-                inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
-                viewDirWS = SafeNormalize(viewDirWS);
-                inputData.viewDirectionWS = viewDirWS;
-
-                #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-                    inputData.shadowCoord = input.shadowCoord;
-                #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-                    inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);
-                #else
-                    inputData.shadowCoord = float4(0, 0, 0, 0);
-                #endif
-
-                inputData.fogCoord = input.fogFactorAndVertexLight.x;
-                inputData.vertexLighting = input.fogFactorAndVertexLight.yzw;
-                inputData.bakedGI = SAMPLE_GI(input.texcoord1, input.vertexSH, inputData.normalWS);
-            }
-
-			CTIVertexBBOutput LitPassVertex(CTIVertexBBInput input)
-			{
-				CTIVertexBBOutput output = (CTIVertexBBOutput)0;
-
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-
-                CTIBillboardVert(input, 0);
-            //  Set color variation
-                output.colorVariation = input.color.r;
-
-                VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
-                VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
-                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
-                half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);
-                half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
-
-                output.uv.xy = input.texcoord.xy;
-
-                #ifdef _NORMALMAP
-                    output.normalWS = half4(normalInput.normalWS, viewDirWS.x);
-                    output.tangentWS = half4(normalInput.tangentWS, viewDirWS.y);
-                    output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.z);
-                #else
-                    output.normalWS = NormalizeNormalPerVertex(normalInput.normalWS);
-                    output.viewDirWS = viewDirWS;
-                #endif
-
-                //OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
-                OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
-                output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
-
-                #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
-                    output.positionWS = vertexInput.positionWS;
-                #endif
-                #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-                    output.shadowCoord = GetShadowCoord(vertexInput);
-                #endif
-
-                output.positionCS = vertexInput.positionCS;
-				return output;
-			}
-
-
-            half4 LitPassFragment(CTIVertexBBOutput IN) : SV_Target
-			{
-                UNITY_SETUP_INSTANCE_ID(IN);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
-
-                #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
-                    LODDitheringTransition(IN.positionCS.xyz, unity_LODFade.x);
-                #endif
-
-                SurfaceDescriptionLeaves surfaceData;
-            //  Get the surface description / defined in "Includes/CTI LWRP Inputs.hlsl"
-                InitializeStandardLitSurfaceData(IN.colorVariation, IN.uv.xy, surfaceData);
-            //  Add ambient occlusion from alpha
-                surfaceData.occlusion = (surfaceData.occlusion <= _AlphaLeak) ? 1 : surfaceData.occlusion; // Eliminate alpha leaking into ao
-                surfaceData.occlusion  = lerp(1, surfaceData.occlusion * 2 - 1, _OcclusionStrength);
-
-                InputData inputData;
-                InitializeInputData(IN, surfaceData.normalTS, inputData);
-
-            //  Apply lighting
-                //half4 color = LightweightFragmentPBR(inputData, surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion, surfaceData.emission, surfaceData.alpha);
-                half4 color = CTILightweightFragmentPBR(
-                    inputData, 
-                    surfaceData.albedo, 
-                    surfaceData.metallic, 
-                    surfaceData.specular, 
-                    surfaceData.smoothness, 
-                    surfaceData.occlusion, 
-                    surfaceData.emission, 
-                    surfaceData.alpha,
-                    _Translucency * half3(surfaceData.translucency, 1, 1),
-                    _AmbientReflection);
-
-            //  Add fog
-                color.rgb = MixFog(color.rgb, inputData.fogCoord);
-                return color;
-			}
+            #include "Includes/CTI URP Billboard ForwardLit Pass.hlsl"
 
             ENDHLSL
         }
@@ -233,11 +153,289 @@
             ZWrite On
             ZTest LEqual
             Cull Off
+            ColorMask 0
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON 1
+
+            #define CTIBILLBOARD
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+
+            #pragma vertex ShadowPassVertex
+            #pragma fragment ShadowPassFragment
+
+            #define SHADOWCASTERPASS
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Includes/CTI URP Billboard ShadowCaster Pass.hlsl"
+
+            ENDHLSL
+        }
+
+//  GBuffer -----------------------------------------------------
+        Pass
+        {
+            Name "GBuffer"
+            Tags{"LightMode" = "UniversalGBuffer"}
+
+            ZWrite On
+            ZTest LEqual
+            Cull[_Cull]
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON 1
+
+            #pragma shader_feature_local _NORMALMAP
+
+            #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+            #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
+            #define _SPECULAR_SETUP
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+
+            #pragma shader_feature_local_fragment _ _GBUFFERLIGHTING_TRANSMISSION
+        //  Needed in case Transmission is used
+        //  Built in keyword might fail once cookies were activated...
+            #pragma shader_feature_local_fragment _SAMPLE_LIGHT_COOKIES
+
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile _ _SHADOWS_SOFT
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+//#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _RENDER_PASS_ENABLED
+
+            // -------------------------------------
+            // Unity defined keywords
+//#pragma multi_compile _ DIRLIGHTMAP_COMBINED
+//#pragma multi_compile _ LIGHTMAP_ON
+//#pragma multi_compile _ DYNAMICLIGHTMAP_ON
+            #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+            //#pragma multi_compile _ DOTS_INSTANCING_ON
+
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+
+            #define CTIBILLBOARD
+
+            #pragma vertex LitGBufferPassVertex
+            #pragma fragment LitGBufferPassFragment
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Includes/CTI URP Billboard GBuffer Pass.hlsl"
+
+            ENDHLSL
+        }        
+
+//  Depth -----------------------------------------------------
+        Pass
+        {
+            Name "DepthOnly"
+            Tags {"LightMode" = "DepthOnly"}
+
+            ZWrite On
+            ColorMask 0
+            Cull Off
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            #pragma vertex DepthOnlyVertex
+            #pragma fragment DepthOnlyFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON 1
+
+            #define CTIBILLBOARD
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+
+            #define DEPTHONLYPASS
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            #include "Includes/CTI URP Billboard DepthOnly Pass.hlsl"
+
+            ENDHLSL
+        }
+
+//  Depth Normal -----------------------------------------------------
+        Pass
+        {
+            Name "DepthNormals"
+            Tags{"LightMode" = "DepthNormals"}
+
+            ZWrite On
+            Cull Off
+
+            HLSLPROGRAM
+            #pragma exclude_renderers gles gles3 glcore
+            #pragma target 4.5
+
+            #pragma vertex DepthNormalsVertex
+            #pragma fragment DepthNormalsFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON 1
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
+
+            #define CTIBILLBOARD
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+
+            #define DEPTHNORMALPASS
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            #include "Includes/CTI URP Billboard DepthNormal Pass.hlsl"
+
+            ENDHLSL
+        }
+
+
+//  Meta -----------------------------------------------------
+    }
+
+
+// -----------------------------------------------------------------------------
+
+    SubShader
+    {
+        Tags
+        {
+            "Queue"="Geometry"
+            "RenderType" = "Opaque"
+            "RenderPipeline" = "UniversalPipeline"
+            "UniversalMaterialType" = "Lit"
+            "DisableBatching" = "LODFading"
+            "IgnoreProjector" = "True"
+            "ShaderModel"="2.0"
+        }
+        LOD 300
+
+
+//  Base -----------------------------------------------------
+        Pass
+        {
+            Name "ForwardLit"
+            Tags{"LightMode" = "UniversalForward"}
+
+            ZWrite On
+        //  URP billboardNormal orientation is flipped?
+            Cull Off
+            AlphaToMask [_Coverage]
+
+            HLSLPROGRAM
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 2.0
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON 1
+            #pragma shader_feature _NORMALMAP
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+            #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+
+            #define CTIBILLBOARD
+            #define _SPECULAR_SETUP
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+//#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+//#pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile_fragment _ _LIGHT_LAYERS
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _CLUSTERED_RENDERING
+
+
+            // -------------------------------------
+            // Unity defined keywords
+            //#pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            //#pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Includes/CTI URP Lighting.hlsl"
+
+			#pragma vertex LitPassVertex
+			#pragma fragment LitPassFragment
+
+            #include "Includes/CTI URP Billboard ForwardLit Pass.hlsl"
+
+            ENDHLSL
+        }
+
+//  Shadows -----------------------------------------------------
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags{"LightMode" = "ShadowCaster"}
+
+            ZWrite On
+            ZTest LEqual
+            Cull Off
+            ColorMask 0
+
+            HLSLPROGRAM
+            #pragma only_renderers gles gles3 glcore d3d11
             #pragma target 2.0
 
             // -------------------------------------
@@ -249,53 +447,21 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
             #pragma multi_compile _ LOD_FADE_CROSSFADE
 
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
 
+            #define SHADOWCASTERPASS
+
             #include "Includes/CTI URP Inputs.hlsl"
-            
+            #include "Includes/CTI URP Billboard ShadowCaster Pass.hlsl"
 
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
-
-            #include "Includes/CTI URP Billboard.hlsl"
-
-            float3 _LightDirection;
-
-            CTIVertexBBOutput ShadowPassVertex(CTIVertexBBInput input)
-            {
-                CTIVertexBBOutput output = (CTIVertexBBOutput)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-                
-                CTIBillboardVert(input, _LightDirection);
-
-                output.uv = input.texcoord.xy;
-
-                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                float3 normalWS = TransformObjectToWorldDir(input.normalOS);
-
-                output.positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, _LightDirection));
-
-                #if UNITY_REVERSED_Z
-                    output.positionCS.z = min(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
-                #else
-                    output.positionCS.z = max(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
-                #endif
-                return output;
-            }
-
-            half4 ShadowPassFragment(CTIVertexOutput IN) : SV_TARGET
-            {
-                #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES)
-                    LODDitheringTransition(IN.positionCS.xyz, unity_LODFade.x);
-                #endif
-                half alpha = SampleAlbedoAlpha(IN.uv.xy, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a;
-                clip(alpha - _Cutoff);
-                return 1;
-            }
             ENDHLSL
         }
 
@@ -310,9 +476,7 @@
             Cull Off
 
             HLSLPROGRAM
-            // Required to compile gles 2.0 with standard srp library
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
+            #pragma only_renderers gles gles3 glcore d3d11
             #pragma target 2.0
 
             #pragma vertex DepthOnlyVertex
@@ -327,47 +491,62 @@
             //--------------------------------------
             // GPU Instancing
             #pragma multi_compile_instancing
+            
             #pragma multi_compile _ LOD_FADE_CROSSFADE
 
             #define DEPTHONLYPASS
 
             #include "Includes/CTI URP Inputs.hlsl"
-            #include "Includes/CTI URP Billboard.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-            CTIVertexBBOutput DepthOnlyVertex(CTIVertexBBInput input)
-            {
-                CTIVertexBBOutput output = (CTIVertexBBOutput)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-
-                CTIBillboardVert(input, 0);
-
-                VertexPositionInputs vertexPosition = GetVertexPositionInputs(input.positionOS.xyz);
-                output.uv.xy = input.texcoord.xy;
-                output.positionCS = vertexPosition.positionCS;
-                return output;
-            }
-
-            half4 DepthOnlyFragment(CTIVertexBBOutput IN) : SV_TARGET
-            {
-                UNITY_SETUP_INSTANCE_ID(IN);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
-
-                #if defined(LOD_FADE_CROSSFADE) && !defined(SHADER_API_GLES) // enable dithering LOD transition if user select CrossFade transition in LOD group
-                    LODDitheringTransition(IN.positionCS.xyz, unity_LODFade.x);
-                #endif
-                half alpha = SampleAlbedoAlpha(IN.uv.xy, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a;
-                clip(alpha - _Cutoff);
-                return 1;
-            }
+            #include "Includes/CTI URP Billboard DepthOnly Pass.hlsl"
 
             ENDHLSL
         }
 
-//  Meta -----------------------------------------------------
+//  Depth Normal -----------------------------------------------------
+        Pass
+        {
+            Name "DepthNormals"
+            Tags{"LightMode" = "DepthNormals"}
 
+            ZWrite On
+            Cull Off
+
+            HLSLPROGRAM
+            #pragma only_renderers gles gles3 glcore d3d11
+            #pragma target 2.0
+
+            #pragma vertex DepthNormalsVertex
+            #pragma fragment DepthNormalsFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #define _ALPHATEST_ON 1
+            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _NORMALINDEPTHNORMALPASS
+
+            #define CTIBILLBOARD
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+
+            #define DEPTHNORMALPASS
+
+            #include "Includes/CTI URP Inputs.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            #include "Includes/CTI URP Billboard DepthNormal Pass.hlsl"
+
+            ENDHLSL
+        }
+
+
+//  Meta -----------------------------------------------------
     }
+
     FallBack "Hidden/InternalErrorShader"
 }

@@ -1,5 +1,5 @@
-float4 _CTI_SRP_Wind;
-float _CTI_SRP_Turbulence;
+float4  _CTI_SRP_Wind;
+float   _CTI_SRP_Turbulence;
 
 
 float4 SmoothCurve( float4 x ) {   
@@ -54,7 +54,7 @@ float3x3 AfsRotationMatrix(float3 axis, float angle)
                         oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c);   
 }
 
-void CTI_AnimateVertex( inout CTIVertexInput v, float4 animParams, float3 baseWindMultipliers) {  
+void CTI_AnimateVertex( inout Attributes v, float4 animParams, float3 baseWindMultipliers) {  
 
     // animParams.x = branch phase
     // animParams.y = edge flutter factor
@@ -102,6 +102,11 @@ void CTI_AnimateVertex( inout CTIVertexInput v, float4 animParams, float3 baseWi
     xWind.xyz = mul(GetWorldToObjectMatrix(), float4(xWind.xyz, 0)).xyz;
 //  Animate Wind
     xWind.w *= fOsc.x;
+//  New in URP 12: Break up wind input - just a bit.
+    xWind.w += xWind.w * (fOsc.x * 0.1 + frac(fObjPhase) * 0.25);
+//  New in URP 12: Break up wind direction (and strength) over time.
+    float offsetWind = (vOscillations.x + vOscillations.y + vOscillations.z) * _WindVariation;
+    xWind.xz += xWind.w * float2( offsetWind, -offsetWind);
 
     animParams.zwy *= baseWindMultipliers.xyz;
 
@@ -215,7 +220,7 @@ void CTI_AnimateVertex( inout CTIVertexInput v, float4 animParams, float3 baseWi
     #endif
 
     //  Store Variation
-    #if !defined(UNITY_PASS_SHADOWCASTER) && !defined(DEPTHONLYPASS)
+    #if !defined(SHADOWSONLYPASS) && !defined(DEPTHONLYPASS) && !defined(DEPTHNORMALPASS)
         v.color.r = saturate ( ( frac(TreeWorldPos.x + TreeWorldPos.y + TreeWorldPos.z) + frac( (TreeWorldPos.x + TreeWorldPos.y + TreeWorldPos.z) * 3.3 ) ) * 0.5 );
     #endif
 

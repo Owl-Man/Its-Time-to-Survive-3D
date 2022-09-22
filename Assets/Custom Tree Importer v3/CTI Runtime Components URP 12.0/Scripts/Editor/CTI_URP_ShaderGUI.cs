@@ -26,6 +26,13 @@ public class CTI_URP_ShaderGUI : ShaderGUI  {
             }
         }
 
+    //  Lightmapping
+        if (targetMat.HasProperty("_BaseMap") && targetMat.HasProperty("_MainTex")){
+            if (targetMat.GetTexture("_BaseMap") != null) {
+                targetMat.SetTexture("_MainTex", targetMat.GetTexture("_BaseMap") ); 
+            }
+        }
+
         GUILayout.Space(8);
 
     }

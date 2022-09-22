@@ -18,11 +18,12 @@ namespace CTI {
 			EditorGUILayout.BeginVertical();
 				vec4value.x = EditorGUILayout.Slider("Strength", vec4value.x, 0.0f, 10.0f);
 				vec4value.y = EditorGUILayout.Slider("Power", vec4value.y, 0.0f, 10.0f);
+				vec4value.z = EditorGUILayout.Slider("Shadow Strength", vec4value.z, 0.0f, 1.0f);
+				vec4value.w = EditorGUILayout.Slider("Distortion", vec4value.w, 0.0f, 1.0f);
 			EditorGUILayout.EndVertical();
 			if (EditorGUI.EndChangeCheck ()) {
 				prop.vectorValue = vec4value;
 			}
 		}
 	}
-
 }
