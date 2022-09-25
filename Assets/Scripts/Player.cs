@@ -1,5 +1,4 @@
 using System.Collections;
-using Inventory;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,8 +12,8 @@ public class Player : MonoBehaviour
 
     public GameObject attackHitBox;
 
-    [HideInInspector] public WeaponItem weaponScript;
-    private Slot _slotScript;
+    //[HideInInspector] public WeaponItem weaponScript;
+    //private Slot _slotScript;
 
     public Image attackButtonSprite;
     
@@ -24,7 +23,7 @@ public class Player : MonoBehaviour
     //[SerializeField] private Joystick joystick;
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private SpriteRenderer sprite;
-    [SerializeField] private InventorySystem inventory;
+    //[SerializeField] private InventorySystem inventory;
     [SerializeField] private BoxCollider2D rightHit, leftHit;
 
     private static readonly int IsRun = Animator.StringToHash("isRun");
@@ -62,7 +61,7 @@ public class Player : MonoBehaviour
         _isAttacking = false;
     }
 
-    public void BringWeaponState(bool state)
+    /*public void BringWeaponState(bool state)
     {
         if (animator.GetBool(IsDead)) return;
 
@@ -96,5 +95,5 @@ public class Player : MonoBehaviour
             animator.SetBool(IsBowEquip, state);
             animator.SetBool(IsSwordEquip, !state);
         }
-    }
+    }*/
 }
