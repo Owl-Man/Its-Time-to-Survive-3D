@@ -1,7 +1,6 @@
 using System.Collections;
 using Inventory;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class Player : MonoBehaviour
@@ -22,7 +21,7 @@ public class Player : MonoBehaviour
     [Header("References")]
 
     [SerializeField] private Animator animator;
-    [SerializeField] private Joystick joystick;
+    //[SerializeField] private Joystick joystick;
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private SpriteRenderer sprite;
     [SerializeField] private InventorySystem inventory;
