@@ -131,7 +131,6 @@ public class CustomCharacterController : MonoBehaviour
 
         // Magnitude - это длинна вектора. я делю длинну на currentSpeed так как мы умножаем этот вектор на currentSpeed на 86 строке. Я хочу получить число максимум 1.
         _animation.SetFloat("magnitude", movingVector.magnitude / currentSpeed);
-        Debug.Log(movingVector.magnitude / currentSpeed);
         // Здесь мы двигаем персонажа! Устанавливаем движение только по x & z потому что мы не хотим чтобы наш персонаж взлетал в воздух
         _rigidbody.velocity = new Vector3(movingVector.x, _rigidbody.velocity.y, movingVector.z);
         // У меня был баг, что персонаж крутился на месте и это исправил с помощью этой строки

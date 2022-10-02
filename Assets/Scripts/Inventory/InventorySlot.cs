@@ -1,18 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class InventorySlot : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public ItemScriptableObject item;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public GameObject icon;
+    public TMP_Text itemAmount;
+
+    public int amount;
+    public bool isEmpty = true;
 }
