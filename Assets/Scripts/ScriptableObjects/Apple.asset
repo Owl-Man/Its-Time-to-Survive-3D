@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemType: 1
   itemName: Apple
-  itemPrefab: {fileID: 5867866242033428557, guid: a65fc80fd10007dc18aba947391548f7,
-    type: 3}
-  icon: {fileID: 0}
+  itemPrefab: {fileID: 1105760525757012, guid: bfec01bc3e4d0444dbe595b4f55c6730, type: 3}
+  icon: {fileID: 21300000, guid: 595df4139623e93498e02108674ff1f0, type: 3}
   maxAmount: 10
   itemDescription: Red apple
   healAmount: 5

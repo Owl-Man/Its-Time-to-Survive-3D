@@ -12,41 +12,55 @@ public class InventorySystem : MonoBehaviour
     {
         Ray ray = m_Camera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
+
         if (Physics.Raycast(ray, out hit, reachDistance))
         {
-            Debug.DrawRay(ray.origin, ray.direction * reachDistance, Color.green);
-            if (hit.collider.gameObject.TryGetComponent<Item>(out var hitItem))
+            if (Input.GetKeyDown(KeyCode.F))
             {
-                AddItem(hitItem.item, hitItem.amount);
-                Destroy(hit.collider.gameObject);
+                if (hit.collider.gameObject.TryGetComponent<Item>(out var hitItem))
+                {
+                    AddItem(hitItem.item, hitItem.amount);
+                    Destroy(hit.collider.gameObject);
+                }
             }
         }
-        else Debug.DrawRay(ray.origin, ray.direction * reachDistance, Color.red);
     }
 
     private void AddItem(ItemScriptableObject _item, int _amount) 
     {
-        foreach(InventorySlot slot in slots) 
+        foreach (InventorySlot slot in slots) 
         {
             if (slot.item == _item) 
             {
                 slot.amount += _amount;
+                slot.itemAmountText.text = slot.amount.ToString();
                 return;
             }
         }
 
         foreach (InventorySlot slot in slots) 
         {
-            if (slot.isEmpty == false) 
+            if (slot.isEmpty == true) 
             {
                 slot.item = _item;
                 slot.amount = _amount;
                 slot.isEmpty = false;
+                slot.SetIcon(_item.icon);
+                slot.itemAmountText.text = _amount.ToString();
+                break;
             }
         }
     }
 
-    public void OnOpenInventoryButtonClick() => inventoryPanel.SetActive(true);
+    public void OnOpenInventoryButtonClick()
+    {
+        inventoryPanel.SetActive(true);
+        Crosshair.instance.DisableCrosshair();
+    }
 
-    public void OnCloseInventoryButtonClick() => inventoryPanel.SetActive(false);
+    public void OnCloseInventoryButtonClick()
+    {
+        inventoryPanel.SetActive(false);
+        Crosshair.instance.EnableCrosshair();
+    }
 }

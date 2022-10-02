@@ -566,10 +566,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d72a1aa9ab5223140b156b726905ddab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  anim: {fileID: 8716964735506373798}
-  rig: {fileID: 7678020008923771026}
-  mainCamera: {fileID: 0}
-  jumpForce: 6
+  _animation: {fileID: 8716964735506373798}
+  _rigidbody: {fileID: 7678020008923771026}
+  _cameraTransform: {fileID: 0}
+  _mainCamera: {fileID: 0}
+  _joystick: {fileID: 0}
+  PC_Mode: 1
+  jumpForce: 10
   walkingSpeed: 3
   runningSpeed: 6
   currentSpeed: 0
