@@ -10,12 +10,12 @@ public class InventorySystem : MonoBehaviour
 
     private void Update()
     {
-        Ray ray = m_Camera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, reachDistance))
+        if (Input.GetKeyDown(KeyCode.F))
         {
-            if (Input.GetKeyDown(KeyCode.F))
+            Ray ray = m_Camera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit, reachDistance))
             {
                 if (hit.collider.gameObject.TryGetComponent<Item>(out var hitItem))
                 {
