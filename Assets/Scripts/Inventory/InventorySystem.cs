@@ -32,9 +32,14 @@ public class InventorySystem : MonoBehaviour
         {
             if (slot.item == _item) 
             {
-                slot.amount += _amount;
-                slot.itemAmountText.text = slot.amount.ToString();
-                return;
+                if (slot.amount + _amount <= _item.maxAmount) 
+                {
+                    slot.amount += _amount;
+                    slot.itemAmountText.text = slot.amount.ToString();
+                    return;
+                }
+
+                break;
             }
         }
 
@@ -56,11 +61,17 @@ public class InventorySystem : MonoBehaviour
     {
         inventoryPanel.SetActive(true);
         Crosshair.instance.DisableCrosshair();
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     public void OnCloseInventoryButtonClick()
     {
         inventoryPanel.SetActive(false);
         Crosshair.instance.EnableCrosshair();
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 }
