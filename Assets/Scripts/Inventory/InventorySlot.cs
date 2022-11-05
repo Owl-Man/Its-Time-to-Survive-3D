@@ -14,7 +14,7 @@ public class InventorySlot : MonoBehaviour
 
     public void SetIcon(Sprite _icon) 
     {
-        icon.color = new Color(1f, 1f, 1f);
+        icon.color = new Color(1f, 1f, 1f, 255);
         icon.sprite = _icon;
     }
 }

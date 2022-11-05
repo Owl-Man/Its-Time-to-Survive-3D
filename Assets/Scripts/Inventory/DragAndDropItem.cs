@@ -48,8 +48,8 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         //Поставить DraggableObject обратно в свой старый слот
         transform.SetParent(oldSlot.transform);
         transform.position = oldSlot.transform.position;
-        //Если мышка отпущена над объектом по имени UIPanel, то...
-        if (eventData.pointerCurrentRaycast.gameObject.name == "Inventory")
+        
+        if (eventData.pointerCurrentRaycast.gameObject.CompareTag("TrashZone"))
         {
             // Выброс объектов из инвентаря - Спавним префаб обекта перед персонажем
             GameObject itemObject = Instantiate(oldSlot.item.itemPrefab, player.position + Vector3.up + player.forward, Quaternion.identity);
@@ -96,7 +96,7 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         {
             newSlot.icon.color = new Color(1, 1, 1, 0);
             newSlot.icon.sprite = null;
-            newSlot.itemAmountText.text = "";
+            newSlot.itemAmountText.text = "0";
         }
 
         newSlot.isEmpty = oldSlot.isEmpty;
@@ -113,7 +113,7 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         {
             oldSlot.icon.color = new Color(1, 1, 1, 0);
             oldSlot.icon.sprite = null;
-            oldSlot.itemAmountText.text = "";
+            oldSlot.itemAmountText.text = "0";
         }
 
         oldSlot.isEmpty = isEmpty;
