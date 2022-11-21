@@ -5,7 +5,9 @@ public class InventorySystem : MonoBehaviour
 {
     [SerializeField] private Camera m_Camera;
     [SerializeField] private float reachDistance;
+
     public GameObject inventoryPanel;
+
     public List<InventorySlot> slots = new List<InventorySlot>();
 
     private void Update()

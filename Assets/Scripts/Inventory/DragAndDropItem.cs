@@ -34,12 +34,17 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         GetComponentInChildren<Image>().raycastTarget = false;
         // Делаем наш DraggableObject ребенком InventoryPanel чтобы DraggableObject был над другими слотами инвенторя
         transform.SetParent(transform.parent.parent);
+
+        oldSlot.trashZoneHelpText.SetActive(true);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
         if (oldSlot.isEmpty)
             return;
+
+        oldSlot.trashZoneHelpText.SetActive(false);
+
         // Делаем картинку опять не прозрачной
         GetComponentInChildren<Image>().color = new Color(1, 1, 1, 1f);
         // И чтобы мышка опять могла ее засечь

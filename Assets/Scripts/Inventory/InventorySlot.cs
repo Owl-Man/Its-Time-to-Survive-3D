@@ -9,6 +9,8 @@ public class InventorySlot : MonoBehaviour
     public Image icon;
     public TMP_Text itemAmountText;
 
+    public GameObject trashZoneHelpText;
+
     public int amount;
     public bool isEmpty = true;
 
