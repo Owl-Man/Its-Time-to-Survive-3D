@@ -82,14 +82,12 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     }
     private void ExchangeSlotData(InventorySlot newSlot)
     {
-        // Временно храним данные newSlot в отдельных переменных
         ItemScriptableObject item = newSlot.item;
         int amount = newSlot.amount;
         bool isEmpty = newSlot.isEmpty;
         Image iconGO = newSlot.icon;
         TMP_Text itemAmountText = newSlot.itemAmountText;
 
-        // Заменяем значения newSlot на значения oldSlot
         newSlot.item = oldSlot.item;
         newSlot.amount = oldSlot.amount;
         if (oldSlot.isEmpty == false)
@@ -106,7 +104,6 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
         newSlot.isEmpty = oldSlot.isEmpty;
 
-        // Заменяем значения oldSlot на значения newSlot сохраненные в переменных
         oldSlot.item = item;
         oldSlot.amount = amount;
         if (isEmpty == false)

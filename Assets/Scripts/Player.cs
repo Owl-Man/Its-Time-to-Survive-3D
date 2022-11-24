@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -36,64 +35,4 @@ public class Player : MonoBehaviour
     private void Awake() => Instance = this;
 
     private void Start() => Time.timeScale = 1f;
-
-    public void OnAttackButtonClick()
-    {
-        if (animator.GetBool(IsDead)) return;
-
-        if (_isAttacking) return;
-
-        _isAttacking = true;
-
-        StartCoroutine(Attacking());
-    }
-
-    private IEnumerator Attacking()
-    {
-        if (_attackCombo <= 5) animator.Play("SwordAttack" + _attackCombo);
-        else _attackCombo = 1;
-
-        attackHitBox.SetActive(true);
-        yield return new WaitForSeconds(reloadAttacking);
-        _attackCombo++;
-        animator.Play("Swordidle");
-        attackHitBox.SetActive(false);
-        _isAttacking = false;
-    }
-
-    /*public void BringWeaponState(bool state)
-    {
-        if (animator.GetBool(IsDead)) return;
-
-        if (state)
-        {
-            inventory.AttackButton.SetActive(true);
-            _slotScript = inventory.slotScripts[inventory.idSlotThatUsed];
-            _slotScript.GetChild();
-            weaponScript = _slotScript.Child.GetComponent<WeaponItem>();
-
-            attackButtonSprite.sprite = weaponScript.weapon.sprite;
-        }
-        else
-        {
-            inventory.AttackButton.SetActive(false);
-
-            animator.SetBool(IsSwordEquip, false);
-            animator.SetBool(IsBowEquip, false);
-
-            return;
-        }
-
-        if (_slotScript.Child.CompareTag("Weapon"))
-        {
-            animator.SetBool(IsSwordEquip, state);
-            animator.SetBool(IsBowEquip, !state);
-        }
-
-        if (_slotScript.Child.CompareTag("Bow"))
-        {
-            animator.SetBool(IsBowEquip, state);
-            animator.SetBool(IsSwordEquip, !state);
-        }
-    }*/
 }

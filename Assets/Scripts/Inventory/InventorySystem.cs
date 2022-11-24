@@ -6,7 +6,7 @@ public class InventorySystem : MonoBehaviour
     [SerializeField] private Camera m_Camera;
     [SerializeField] private float reachDistance;
 
-    public GameObject inventoryPanel;
+    public GameObject inventoryPanel, UIBG;
 
     public List<InventorySlot> slots = new List<InventorySlot>();
 
@@ -62,6 +62,7 @@ public class InventorySystem : MonoBehaviour
     public void OnOpenInventoryButtonClick()
     {
         inventoryPanel.SetActive(true);
+        UIBG.SetActive(true);
         Crosshair.instance.DisableCrosshair();
 
         Cursor.lockState = CursorLockMode.None;
@@ -71,6 +72,7 @@ public class InventorySystem : MonoBehaviour
     public void OnCloseInventoryButtonClick()
     {
         inventoryPanel.SetActive(false);
+        UIBG.SetActive(false);
         Crosshair.instance.EnableCrosshair();
 
         Cursor.lockState = CursorLockMode.Locked;

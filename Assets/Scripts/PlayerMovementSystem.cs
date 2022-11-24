@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-public class CustomCharacterController : MonoBehaviour
+public class PlayerMovementSystem : MonoBehaviour
 {
     [SerializeField] private Animator _animation;
     [SerializeField] private Rigidbody _rigidbody;
